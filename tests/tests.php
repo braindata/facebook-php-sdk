@@ -594,7 +594,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
       $this->fail('Should not get here.');
     } catch(FacebookApiException $e) {
       // means the server got the access token
-      $msg = 'invalid_request: An active access token must be used '.
+      $msg = 'OAuthException: An active access token must be used '.
              'to query information about the current user.';
       $this->assertEquals($msg, (string) $e,
                           'Expect the invalid session message.');
@@ -1237,7 +1237,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     $stub
       ->expects($this->once())
       ->method('_oauthRequest')
-      ->will($this->returnValue("access_token=$access_token"));
+      ->will($this->returnValue(["access_token" => $access_token]));
     $stub
       ->expects($this->once())
       ->method('getCurrentUrl');
@@ -1260,7 +1260,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     $stub
       ->expects($this->once())
       ->method('_oauthRequest')
-      ->will($this->returnValue("access_token=$access_token"));
+      ->will($this->returnValue(["access_token" => $access_token]));
     $stub
       ->expects($this->never())
       ->method('getCurrentUrl');
@@ -1429,7 +1429,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     $stub
       ->expects($this->once())
       ->method('_oauthRequest')
-      ->will($this->returnValue("{\"$key\":$val}"));
+      ->will($this->returnValue([$key => $val]));
     $stub
       ->expects($this->once())
       ->method('destroySession');
@@ -1455,7 +1455,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     $stub
       ->expects($this->once())
       ->method('_oauthRequest')
-      ->will($this->returnValue("{\"$key\":$val}"));
+      ->will($this->returnValue([$key => $val]));
     $stub
       ->expects($this->once())
       ->method('destroySession');
@@ -1481,7 +1481,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     $stub
       ->expects($this->once())
       ->method('_oauthRequest')
-      ->will($this->returnValue('{"error_code": 500}'));
+      ->will($this->returnValue(['error_code' => 500]));
     $stub->api(array('method' => 'foo'));
   }
 
