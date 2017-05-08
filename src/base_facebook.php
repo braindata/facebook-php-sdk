@@ -410,17 +410,14 @@ abstract class BaseFacebook
       return false;
     }
 
-    $response_params = array();
-    parse_str($access_token_response, $response_params);
-
-    if (!isset($response_params['access_token'])) {
+    if (!isset($access_token_response['access_token'])) {
       return false;
     }
 
     $this->destroySession();
 
     $this->setPersistentData(
-      'access_token', $response_params['access_token']
+      'access_token', $access_token_response['access_token']
     );
   }
 
@@ -805,13 +802,11 @@ abstract class BaseFacebook
       return false;
     }
 
-    $response_params = array();
-    parse_str($access_token_response, $response_params);
-    if (!isset($response_params['access_token'])) {
+    if (!isset($access_token_response['access_token'])) {
       return false;
     }
 
-    return $response_params['access_token'];
+    return $access_token_response['access_token'];
   }
 
   /**
@@ -827,10 +822,10 @@ abstract class BaseFacebook
     $params['api_key'] = $this->getAppId();
     $params['format'] = 'json-strings';
 
-    $result = json_decode($this->_oauthRequest(
+    $result = $this->_oauthRequest(
       $this->getApiUrl($params['method']),
       $params
-    ), true);
+    );
 
     // results are returned, errors are thrown
     if (is_array($result) && isset($result['error_code'])) {
@@ -886,10 +881,10 @@ abstract class BaseFacebook
       $domainKey = 'graph';
     }
 
-    $result = json_decode($this->_oauthRequest(
+    $result = $this->_oauthRequest(
       $this->getUrl($domainKey, $path),
       $params
-    ), true);
+    );
 
     // results are returned, errors are thrown
     if (is_array($result) && isset($result['error'])) {
@@ -907,7 +902,7 @@ abstract class BaseFacebook
    * @param string $url The path (required)
    * @param array $params The query/post data
    *
-   * @return string The decoded response object
+   * @return array The decoded response object
    * @throws FacebookApiException
    */
   protected function _oauthRequest($url, $params) {
@@ -926,7 +921,18 @@ abstract class BaseFacebook
       }
     }
 
-    return $this->makeRequest($url, $params);
+    $response = $this->makeRequest($url, $params);
+
+    if (empty($response)) {
+      return [];
+    }
+
+    $decodedResponse = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      return [];
+    }
+
+    return $decodedResponse;
   }
 
   /**
